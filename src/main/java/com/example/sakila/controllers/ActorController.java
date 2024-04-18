@@ -5,6 +5,7 @@ import com.example.sakila.dto.output.ActorOutput;
 import com.example.sakila.entities.Actor;
 import com.example.sakila.repositories.ActorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,11 +33,10 @@ public class ActorController {
             @RequestParam(defaultValue = "10") Integer pageSize)
     {
         Pageable paging = PageRequest.of(pageNo, pageSize);
+        Page<ActorOutput> pagedActors = actorRepository.findAll(paging)
+                .map(ActorOutput::from);
 
-        final var actors = actorRepository.findAll();
-        return actors.stream()
-                .map(ActorOutput::from)
-                .collect(Collectors.toList());
+        return pagedActors.getContent();
     }
 
     // Method for Getting an actor from the database, using their ID

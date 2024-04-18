@@ -9,6 +9,9 @@ import com.example.sakila.repositories.CategoriesRepository;
 import com.example.sakila.repositories.FilmRepository;
 import com.example.sakila.repositories.LanguageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,11 +36,20 @@ public class FilmController {
 
     // Method for Getting all films from the database
     @GetMapping
-    public List<FilmOutput> readAll() {
-        final var films = filmRepository.findAll();
-            return films.stream()
-                .map(FilmOutput::from)
-                .collect(Collectors.toList());
+    public List<FilmOutput> readAll(
+            @RequestParam(defaultValue = "0") Integer pageNo,
+            @RequestParam(defaultValue = "10") Integer pageSize)
+    {
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Page<FilmOutput> pagedFilms = filmRepository.findAll(paging)
+                .map(FilmOutput::from);
+
+        return pagedFilms.getContent();
+
+//        final var films = filmRepository.findAll();
+//            return films.stream()
+//                .map(FilmOutput::from)
+//                .collect(Collectors.toList());
     }
 
     // Method for Getting a film from the database, using its ID
